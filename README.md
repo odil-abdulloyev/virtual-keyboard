@@ -1,2 +1,3 @@
-# odil-abdulloyev-JS2020Q3
-Private repository for @odil-abdulloyev
+# Virtual keyboard
+
+Deploy: [https://odil-abdulloyev.github.io/virtual-keyboard/](https://odil-abdulloyev.github.io/virtual-keyboard/)
