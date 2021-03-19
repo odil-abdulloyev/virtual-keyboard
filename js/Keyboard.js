@@ -6,8 +6,7 @@ import create from './utils/create.js';
 import language from './layouts/index.js'; // { en, ru }
 import Key from './Key.js';
 
-const main = create('main', '',
-  [create('h1', 'title', 'RSS Virtual Keyboard')]);
+const main = create('main', '', [create('h1', 'title', 'RSS Virtual Keyboard')]);
 
 export default class Keyboard {
   constructor(rowsOrder) {
@@ -18,10 +17,10 @@ export default class Keyboard {
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     try {
       this.recognition = new SpeechRecognition();
-      this.recognition.addEventListener('result', e => {
+      this.recognition.addEventListener('result', (e) => {
         const transcript = Array.from(e.results)
-          .map(result => result[0])
-          .map(result => result.transcript)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
           .join(' ');
 
         if (this.output.textContent !== undefined && this.output.textContent !== null) {
@@ -64,12 +63,17 @@ export default class Keyboard {
 
   init(langCode) {
     this.keyBase = language[langCode];
-    this.output = create('textarea', 'output', null, main,
+    this.output = create(
+      'textarea',
+      'output',
+      null,
+      main,
       ['placeholder', 'Start type something...'],
       ['rows', 5],
       ['cols', 50],
       ['spellcheck', false],
-      ['autocorrect', 'off']);
+      ['autocorrect', 'off']
+    );
     this.container = create('div', 'keyboard', null, main, ['language', langCode]);
     document.body.prepend(main);
     return this;
@@ -100,7 +104,9 @@ export default class Keyboard {
     e.stopPropagation();
     const keyDiv = e.target.closest('.keyboard__key');
     if (!keyDiv) return;
-    const { dataset: { code } } = keyDiv;
+    const {
+      dataset: { code },
+    } = keyDiv;
     keyDiv.addEventListener('mouseleave', this.resetButtonState);
     this.handleEvent({ code, type: e.type });
     if (this.soundOn) {
@@ -151,7 +157,7 @@ export default class Keyboard {
       if (code.match(/ShiftLeft/) && !this.shiftKey) {
         this.shiftKey = true;
         this.switchUpperCase(true);
-        document.querySelectorAll('.sub').forEach(el => el.style.fontSize = '14px');
+        document.querySelectorAll('.sub').forEach((el) => (el.style.fontSize = '14px'));
       } else if (code.match(/ShiftLeft/) && this.shiftKey) {
         this.shiftKey = false;
         this.switchUpperCase(false);
@@ -213,21 +219,26 @@ export default class Keyboard {
 
       if (!code.match(/Caps|Win|ControlRight|ShiftLeft/)) keyObj.div.classList.remove('active');
     }
-  }
+  };
 
-  resetButtonState = ({ target: { dataset: { code } } }) => {
+  resetButtonState = ({
+    target: {
+      dataset: { code },
+    },
+  }) => {
     if (code.match(/Control/)) this.ctrKey = false;
     if (code.match(/Alt/)) this.altKey = false;
     this.resetPressedButtons(code);
     this.output.focus();
-  }
+  };
 
   resetPressedButtons = (targetCode) => {
     if (!this.keysPressed[targetCode]) return;
-    if (!this.isCaps && !this.soundOn && !this.voiceOn && !this.shiftKey) this.keysPressed[targetCode].div.classList.remove('active');
+    if (!this.isCaps && !this.soundOn && !this.voiceOn && !this.shiftKey)
+      this.keysPressed[targetCode].div.classList.remove('active');
     this.keysPressed[targetCode].div.removeEventListener('mouseleave', this.resetButtonState);
     delete this.keysPressed[targetCode];
-  }
+  };
 
   switchUpperCase(isTrue) {
     // Флаг - чтобы понимать, мы поднимаем регистр или опускаем
@@ -292,8 +303,10 @@ export default class Keyboard {
   switchLanguage = () => {
     const langAbbr = Object.keys(language);
     let langIdx = langAbbr.indexOf(this.container.dataset.language);
-    this.keyBase = langIdx + 1 < langAbbr.length ? language[langAbbr[langIdx += 1]]
-      : language[langAbbr[langIdx -= langIdx]];
+    this.keyBase =
+      langIdx + 1 < langAbbr.length
+        ? language[langAbbr[(langIdx += 1)]]
+        : language[langAbbr[(langIdx -= langIdx)]];
 
     this.container.dataset.language = langAbbr[langIdx];
     storage.set('kbLang', langAbbr[langIdx]);
@@ -311,22 +324,29 @@ export default class Keyboard {
       button.letter.innerHTML = keyObj.small;
     });
     if (this.isCaps || this.shiftKey) this.switchUpperCase(true);
-  }
+  };
 
   playSound(code) {
     if (code && code.match(/Enter/)) {
+      this.returnKeySound.currentTime = 0;
       this.returnKeySound.play();
     } else if (code && code.match(/Backspace/)) {
+      this.backspaceKeySound.currentTime = 0;
       this.backspaceKeySound.play();
     } else if (code && code.match(/ShiftLeft/)) {
+      this.shiftKeySound.currentTime = 0;
       this.shiftKeySound.play();
     } else if (code && code.match(/Caps/)) {
+      this.capslockKeySound.currentTime = 0;
       this.capslockKeySound.play();
     } else if (code && code.match(/ShiftRight|Tab|Control|Alt|Delete|Win/)) {
+      this.specialKeySound.currentTime = 0;
       this.specialKeySound.play();
     } else if (this.keyBase === language.en) {
+      this.enKeySound.currentTime = 0;
       this.enKeySound.play();
     } else if (this.keyBase === language.ru) {
+      this.ruKeySound.currentTime = 0;
       this.ruKeySound.play();
     }
   }
@@ -347,11 +367,15 @@ export default class Keyboard {
         cursorPos += 1;
       },
       ArrowUp: () => {
-        const positionFromLeft = this.output.value.slice(0, cursorPos).match(/(\n).*$(?!\1)/g) || [[1]];
+        const positionFromLeft = this.output.value.slice(0, cursorPos).match(/(\n).*$(?!\1)/g) || [
+          [1],
+        ];
         cursorPos -= positionFromLeft[0].length;
       },
       ArrowDown: () => {
-        const positionFromLeft = this.output.value.slice(cursorPos).match(/^.*(\n).*(?!\1)/) || [[1]];
+        const positionFromLeft = this.output.value.slice(cursorPos).match(/^.*(\n).*(?!\1)/) || [
+          [1],
+        ];
         cursorPos += positionFromLeft[0].length;
       },
       Enter: () => {
